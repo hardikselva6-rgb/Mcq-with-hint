@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CA Final MCQ Assessment Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --navy: #0a1628;
+  --navy2: #0f2040;
+  --navy3: #162d52;
+  --gold: #c9a84c;
+  --gold2: #e8c96a;
+  --gold3: #f5e0a0;
+  --emerald: #1a9e6e;
+  --emerald2: #22c98d;
+  --rose: #e05c6f;
+  --rose2: #f28090;
+  --sky: #3b82f6;
+  --sky2: #60a5fa;
+  --amber: #f59e0b;
+  --surface: #111f38;
+  --surface2: #162840;
+  --surface3: #1e3354;
+  --text: #f0f4ff;
+  --text2: #9bacc8;
+  --text3: #6b82a0;
+  --border: rgba(201,168,76,0.15);
+  --border2: rgba(201,168,76,0.30);
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--navy);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 10%, rgba(201,168,76,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 80%, rgba(26,158,110,0.05) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.screen { display: none; position: relative; z-index: 1; }
+.screen.active { display: block; }
+
+@keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+
+.fade-up { animation: fadeUp 0.5s ease forwards; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 24px; border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+  cursor: pointer; border: none; transition: all 0.2s;
+}
+
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  color: var(--navy); box-shadow: 0 4px 20px rgba(201,168,76,0.3);
+}
+
+.btn-gold:hover { transform: translateY(-2px); }
+.btn-outline { background: transparent; color: var(--gold); border: 1px solid var(--border2); }
+.btn-outline:hover { background: rgba(201,168,76,0.08); }
+.btn-emerald {
+  background: linear-gradient(135deg, var(--emerald), var(--emerald2));
+  color: #fff; box-shadow: 0 4px 20px rgba(26,158,110,0.3);
+}
+.btn-emerald:hover { transform: translateY(-2px); }
+.btn-rose {
+  background: linear-gradient(135deg, var(--rose), var(--rose2));
+  color: #fff;
+}
+
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 32px;
+  background: rgba(10,22,40,0.8); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+}
+
+.topbar-brand { display: flex; align-items: center; gap: 12px; }
+.topbar-logo {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif; font-weight: 700; color: var(--navy);
+}
+
+.topbar-title { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 600; }
+.topbar-sub { font-size: 11px; color: var(--text3); }
+.topbar-sub a { color: var(--gold2); text-decoration: none; }
+.topbar-sub a:hover { text-decoration: underline; }
+
+.hero {
+  text-align: center; padding: 70px 32px 50px;
+  background: linear-gradient(180deg, rgba(201,168,76,0.05) 0%, transparent 100%);
+  border-bottom: 1px solid var(--border);
+}
+
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(32px, 5vw, 52px); font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.hero h1 span {
+  background: linear-gradient(135deg, var(--gold), var(--gold2), var(--emerald2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero p { font-size: 16px; color: var(--text2); max-width: 520px; margin: 0 auto 36px; }
+
+.quick-guide {
+  max-width: 1100px;
+  margin: 26px auto 0;
+  padding: 0 24px;
+}
+.quick-guide-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+}
+.quick-guide-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+.quick-guide-card p {
+  font-size: 13px;
+  color: var(--text2);
+  margin-bottom: 14px;
+  line-height: 1.6;
+}
+.quick-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.quick-step {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+}
+.quick-step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  color: var(--navy);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.quick-step h4 {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+.quick-step div:last-child {
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.55;
+}
+@media (max-width: 900px) {
+  .quick-guide-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 640px) {
+  .quick-guide { padding: 0 16px; }
+  .quick-guide-grid { grid-template-columns: 1fr; }
+}
+
+
+.input-section { max-width: 860px; margin: 0 auto; padding: 48px 24px; }
+.input-section h2 {
+  font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 8px;
+}
+
+.input-section p { font-size: 14px; color: var(--text2); margin-bottom: 24px; }
+
+.tabs-container {
+  display: flex; gap: 12px; border-bottom: 1px solid var(--border);
+  padding: 0 24px; margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  padding: 14px 20px; background: transparent; border: none;
+  font-size: 14px; font-weight: 500; color: var(--text3); cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.format-box {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 16px 20px; margin-bottom: 20px;
+}
+
+.format-box h4 { font-size: 12px; color: var(--gold); margin-bottom: 10px; }
+.format-box code { font-family: monospace; font-size: 12px; color: var(--text2); display: block; white-space: pre-wrap; }
+
+.meta-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+
+.meta-row input, .meta-row select {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 11px 14px; color: var(--text);
+  font-size: 14px; width: 100%;
+}
+
+.meta-row input:focus, .meta-row select:focus { outline: none; border-color: var(--gold); }
+
+textarea.qa-input {
+  width: 100%; min-height: 320px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 16px;
+  color: var(--text); font-family: monospace; font-size: 13px;
+  resize: vertical;
+}
+
+textarea.qa-input:focus { outline: none; border-color: var(--gold); }
+
+.input-actions { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+
+.parse-status {
+  padding: 12px 16px; border-radius: var(--radius-sm); font-size: 13px;
+  margin-top: 12px; display: none;
+}
+
+.parse-status.success { background: rgba(26,158,110,0.12); color: var(--emerald2); }
+.parse-status.error { background: rgba(224,92,111,0.12); color: var(--rose2); }
+
+.prompt-section { max-width: 860px; margin: 0 auto; padding: 48px 24px; }
+.prompt-section h2 {
+  font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 24px;
+}
+
+.how-to-box {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 20px; margin-bottom: 24px;
+}
+
+.how-to-box h4 { font-size: 13px; color: var(--gold); font-weight: 600; margin-bottom: 12px; }
+.how-to-box ol { padding-left: 20px; }
+.how-to-box li { font-size: 13px; color: var(--text2); margin-bottom: 8px; line-height: 1.6; }
+.how-to-box li strong { color: var(--text); }
+
+.prompt-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; margin-bottom: 24px;
+}
+
+.prompt-card-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 16px; gap: 16px; flex-wrap: wrap;
+}
+
+.prompt-card-title {
+  font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; color: var(--text);
+}
+
+.prompt-card-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
+
+.prompt-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 14px; border-radius: 99px; font-size: 11px; font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.badge-purple { background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.25); }
+.badge-teal { background: rgba(20,184,166,0.15); color: #2dd4bf; border: 1px solid rgba(20,184,166,0.25); }
+
+.prompt-text-box {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 16px;
+  font-family: 'Courier New', monospace; font-size: 11px;
+  color: var(--text2); line-height: 1.7; white-space: pre-wrap;
+  word-break: break-word; max-height: 400px; overflow-y: auto;
+  margin-bottom: 14px;
+}
+
+.prompt-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.copy-btn { padding: 10px 20px; font-size: 13px; }
+.copy-feedback {
+  font-size: 12px; color: var(--emerald2); opacity: 0;
+  transition: opacity 0.3s; font-weight: 500;
+}
+.copy-feedback.show { opacity: 1; }
+
+.test-layout { display: grid; grid-template-columns: 1fr 280px; min-height: calc(100vh - 70px); }
+.test-main { padding: 28px 32px; border-right: 1px solid var(--border); overflow-y: auto; }
+.test-sidebar { padding: 24px 20px; background: var(--surface); position: sticky; top: 70px; height: calc(100vh - 70px); overflow-y: auto; }
+
+.timer-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 24px; padding: 14px 20px;
+  background: var(--surface2); border-radius: var(--radius-sm); border: 1px solid var(--border);
+}
+
+.timer-display {
+  font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 600;
+  color: var(--gold);
+}
+
+.timer-display.warning { color: var(--rose2); animation: pulse 1s infinite; }
+.progress-bar-wrap { height: 4px; background: var(--surface3); border-radius: 99px; margin-bottom: 28px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--emerald2)); transition: width 0.4s ease; }
+
+.question-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px;
+  animation: fadeUp 0.3s ease;
+  min-height: 400px;
+}
+
+.case-scenario {
+  background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.3);
+  border-radius: var(--radius-sm); padding: 16px; margin-bottom: 20px;
+}
+
+.case-scenario-label {
+  font-size: 10px; color: var(--gold); font-weight: 600;
+  text-transform: uppercase; margin-bottom: 8px;
+}
+
+.case-scenario-text { font-size: 14px; color: var(--text2); line-height: 1.6; }
+.q-number { font-size: 11px; color: var(--gold); font-weight: 500; margin-bottom: 10px; }
+.q-text { font-size: 16px; color: var(--text); line-height: 1.7; margin-bottom: 24px; }
+.options-grid { display: flex; flex-direction: column; gap: 10px; }
+
+.option-btn {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 14px 18px; border-radius: var(--radius-sm);
+  background: var(--surface2); border: 1px solid var(--border);
+  cursor: pointer; transition: all 0.2s; width: 100%;
+}
+
+.option-btn:hover { border-color: var(--border2); background: var(--surface3); }
+.option-btn.selected { border-color: var(--gold); background: rgba(201,168,76,0.08); }
+
+.opt-label {
+  width: 28px; height: 28px; flex-shrink: 0; border-radius: 6px;
+  background: var(--surface3); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600; color: var(--text2);
+}
+
+.option-btn.selected .opt-label { background: var(--gold); color: var(--navy); }
+.opt-text { font-size: 14px; color: var(--text); padding-top: 4px; }
+.option-btn.hint-correct { border-color: var(--emerald2); background: rgba(26,158,110,0.15); }
+.option-btn.hint-correct .opt-label { background: var(--emerald2); color: var(--navy); }
+.hint-wrap { margin-top: 18px; }
+.hint-btn {
+  display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px;
+  border-radius: var(--radius-sm); background: transparent; color: var(--amber);
+  border: 1px dashed rgba(245,158,11,0.5); font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s;
+}
+.hint-btn:hover { background: rgba(245,158,11,0.08); }
+.hint-result { margin-top: 12px; font-size: 13px; color: var(--emerald2); font-weight: 500; }
+.q-nav-btns { display: flex; justify-content: space-between; gap: 12px; margin-top: 24px; }
+.sidebar-title { font-size: 11px; font-weight: 500; color: var(--text3); margin-bottom: 14px; }
+.q-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin-bottom: 20px; }
+
+.q-dot {
+  aspect-ratio: 1; border-radius: 6px;
+  background: var(--surface2); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: var(--text3); cursor: pointer;
+}
+
+.q-dot.current { border-color: var(--gold); background: rgba(201,168,76,0.1); }
+.q-dot.answered { background: rgba(26,158,110,0.15); border-color: var(--emerald); }
+.q-dot.skipped { background: rgba(245,158,11,0.12); border-color: #f59e0b; }
+.sidebar-stats { display: flex; flex-direction: column; gap: 8px; padding-top: 16px; border-top: 1px solid var(--border); }
+.sidebar-stat { display: flex; justify-content: space-between; font-size: 13px; }
+
+.results-hero {
+  padding: 48px 32px; text-align: center;
+  background: linear-gradient(180deg, rgba(201,168,76,0.07) 0%, transparent 100%);
+  border-bottom: 1px solid var(--border);
+}
+
+.results-hero h1 { font-family: 'Playfair Display', serif; font-size: 32px; margin-bottom: 24px; }
+.score-ring-wrap { display: flex; justify-content: center; margin: 24px 0; }
+.score-ring-outer { width: 160px; height: 160px; position: relative; display: flex; align-items: center; justify-content: center; }
+.score-ring-outer canvas { position: absolute; inset: 0; }
+.score-ring-inner { position: relative; text-align: center; z-index: 1; }
+.score-ring-pct { font-family: 'Playfair Display', serif; font-size: 38px; font-weight: 700; color: var(--gold); }
+.results-meta-cards { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; margin-top: 20px; }
+.rmeta { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px 24px; text-align: center; }
+.rmeta-val { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; }
+.rmeta-lbl { font-size: 11px; color: var(--text3); margin-top: 4px; }
+.reports-grid { max-width: 1100px; margin: 0 auto; padding: 40px 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.report-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+.report-card h3 { font-family: 'Playfair Display', serif; font-size: 17px; margin-bottom: 6px; }
+.report-card p { font-size: 12px; color: var(--text3); margin-bottom: 20px; }
+.review-wrap { max-width: 820px; margin: 0 auto; padding: 40px 24px; }
+.review-wrap h2 { font-family: 'Playfair Display', serif; font-size: 26px; margin-bottom: 24px; }
+.review-q { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+.review-q-num { font-size: 11px; color: var(--text3); margin-bottom: 8px; }
+.review-q-text { font-size: 15px; color: var(--text); line-height: 1.6; margin-bottom: 16px; }
+.review-options { display: flex; flex-direction: column; gap: 7px; }
+.review-opt { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: var(--radius-sm); font-size: 13px; }
+.review-opt.correct { background: rgba(26,158,110,0.12); color: var(--emerald2); }
+.review-opt.wrong { background: rgba(224,92,111,0.10); color: var(--rose2); }
+.review-opt.neutral { background: var(--surface2); color: var(--text2); }
+.results-actions { text-align: center; padding: 32px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 99px; }
+
+@media (max-width: 768px) {
+  .test-layout { grid-template-columns: 1fr; }
+  .test-sidebar { display: none; }
+  .meta-row { grid-template-columns: 1fr; }
+  .reports-grid { grid-template-columns: 1fr; }
+  .tabs-container { flex-wrap: wrap; }
+}
+
+
+/* FLOATING CALCULATOR */
+.calc-fab {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  color: var(--navy);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+  cursor: pointer;
+  z-index: 1200;
+  user-select: none;
+  font-size: 24px;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.calc-fab.show { display: flex; }
+.calc-fab:hover { transform: translateY(-2px); }
+
+.calculator-panel {
+  position: fixed;
+  right: 22px;
+  bottom: 92px;
+  width: 300px;
+  background: rgba(17,31,56,0.98);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.42);
+  display: none;
+  z-index: 1201;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+.calculator-panel.show { display: block; }
+.calc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: move;
+  background: linear-gradient(180deg, rgba(201,168,76,0.08), rgba(255,255,255,0));
+  border-bottom: 1px solid var(--border);
+}
+.calc-title {
+  font-size: 12px;
+  letter-spacing: 0.4px;
+  color: var(--gold3);
+  font-weight: 600;
+}
+.calc-header-actions {
+  display: flex;
+  gap: 8px;
+}
+.calc-header-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text2);
+  cursor: pointer;
+  font-size: 13px;
+}
+.calc-header-btn:hover { background: var(--surface3); }
+.calc-body { padding: 14px; }
+.calc-display {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #0b1930;
+  color: var(--text);
+  padding: 16px 14px;
+  text-align: right;
+  font-size: 28px;
+  font-family: 'DM Sans', sans-serif;
+  margin-bottom: 12px;
+}
+.calc-subdisplay {
+  min-height: 18px;
+  text-align: right;
+  color: var(--text3);
+  font-size: 11px;
+  padding: 0 4px 8px;
+}
+.calc-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+.calc-btn {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface2);
+  color: var(--text);
+  min-height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.calc-btn:hover { background: var(--surface3); }
+.calc-btn.operator { color: var(--gold2); }
+.calc-btn.action { color: var(--rose2); }
+.calc-btn.equal {
+  background: linear-gradient(135deg, var(--emerald), var(--emerald2));
+  color: #fff;
+  border-color: rgba(34,201,141,0.4);
+}
+.calc-btn.zero { grid-column: span 2; }
+@media (max-width: 768px) {
+  .calculator-panel {
+    width: calc(100vw - 28px);
+    right: 14px;
+    bottom: 84px;
+  }
+  .calc-fab {
+    right: 14px;
+    bottom: 14px;
+  }
+}
+
+</style>
+</head>
+<body>
+<div id="screen-home" class="screen active">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-logo">CA</div>
+      <div>
+        <div class="topbar-title">CA Final MCQ Tool</div>
+        <div class="topbar-sub">Created by Selva Velu Mayil · <a href="https://www.linkedin.com/in/selva-velu-mayil-r-4922aa2a5" target="_blank" rel="noopener noreferrer">LinkedIn</a></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero fade-up">
+    <h1>Your Personal<br><span>MCQ Assessment</span><br>Dashboard</h1>
+    <p>Single MCQs (1 mark) &amp; Case-based MCQs (2 marks) — take timed tests with detailed performance reports. Plus AI-powered question generation prompts!</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px;">
+      <button class="btn btn-gold" onclick="scrollToInput()">📋 Load Questions</button>
+      <button class="btn btn-outline" onclick="scrollToPrompts()">🔗 AI Prompts for Generation</button>
+    </div>
+  </div>
+
+  <div class="quick-guide">
+    <div class="quick-guide-card">
+      <h3>Quick Guide — How to Use This Site</h3>
+      <p>This tool lets you load your own MCQs, take a timed test, review answers, use NotebookLM prompts, and study your reports. Use the section below as a quick start guide.</p>
+      <div class="quick-guide-grid">
+        <div class="quick-step">
+          <div class="quick-step-num">1</div>
+          <h4>Choose Test Type</h4>
+          <div>Select <strong>Single MCQs</strong> for 1-mark questions or <strong>Case-based MCQs</strong> for 2-mark scenario questions.</div>
+        </div>
+        <div class="quick-step">
+          <div class="quick-step-num">2</div>
+          <h4>Paste or Load Questions</h4>
+          <div>Paste your questions in the required format, or click <strong>Load 5 Sample Questions</strong> to test the tool instantly.</div>
+        </div>
+        <div class="quick-step">
+          <div class="quick-step-num">3</div>
+          <h4>Start and Attempt</h4>
+          <div>Enter your name, choose a time limit, click <strong>Start Test</strong>, answer questions, and move using the buttons or question grid.</div>
+        </div>
+        <div class="quick-step">
+          <div class="quick-step-num">4</div>
+          <h4>Review Reports &amp; AI Prompts</h4>
+          <div>After submission, review score, charts, time reports, and if needed scroll further down to use the <strong>AI Prompts for Question Generation</strong> section.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="input-section" id="input-section">
+    <h2>Load Your Questions</h2>
+
+    <div class="tabs-container">
+      <button class="tab-btn active" onclick="switchTab('single', this)">📝 Single MCQs</button>
+      <button class="tab-btn" onclick="switchTab('case', this)">📚 Case-based MCQs</button>
+    </div>
+
+    <div id="tab-single" class="tab-content active">
+      <p>Paste questions in pipe-separated format:</p>
+      <div class="format-box">
+        <h4>Format</h4>
+        <code>Question | Option A | Option B | Option C | Option D | Correct Answer (A/B/C/D)</code>
+      </div>
+
+      <div class="meta-row">
+        <input type="text" id="test-name-single" placeholder="Test Name" value="Single MCQ Test">
+        <input type="text" id="student-name-single" placeholder="Your Name">
+        <select id="time-limit-single">
+          <option value="0">No Time Limit</option>
+          <option value="30">30 Minutes</option>
+          <option value="45" selected>45 Minutes</option>
+          <option value="60">60 Minutes</option>
+          <option value="90">90 Minutes</option>
+        </select>
+      </div>
+
+      <textarea class="qa-input" id="qa-input-single" placeholder="Paste your questions here...
+Example:
+What does SA 570 deal with? | Going Concern | Related Parties | Internal Controls | Fraud | A
+Under Ind AS 109, how many categories? | Two | Three | Four | Five | B"></textarea>
+
+      <div class="input-actions">
+        <button class="btn btn-gold" onclick="parseAndStartSingle()">🚀 Start Test</button>
+        <button class="btn btn-outline" onclick="loadSampleSingle()">📖 Load 5 Sample Questions</button>
+      </div>
+      <div class="parse-status" id="parse-status-single"></div>
+    </div>
+
+    <div id="tab-case" class="tab-content">
+      <p>Paste case scenarios with questions:</p>
+      <div class="format-box">
+        <h4>Format</h4>
+        <code>Case ID | Case Scenario | Question | Option A | Option B | Option C | Option D | Correct Answer
+Repeat the full case scenario in every row for that case.</code>
+      </div>
+
+      <div class="meta-row">
+        <input type="text" id="test-name-case" placeholder="Test Name" value="Case MCQ Test">
+        <input type="text" id="student-name-case" placeholder="Your Name">
+        <select id="time-limit-case">
+          <option value="0">No Time Limit</option>
+          <option value="45">45 Minutes</option>
+          <option value="60" selected>60 Minutes</option>
+          <option value="90">90 Minutes</option>
+        </select>
+      </div>
+
+      <textarea class="qa-input" id="qa-input-case" placeholder="Paste case-based questions here...
+Example:
+CASE-01 | ABC Ltd changed depreciation method | Which AS covers this? | AS 2 | AS 8 | AS 16 | AS 20 | B"></textarea>
+
+      <div class="input-actions">
+        <button class="btn btn-gold" onclick="parseAndStartCase()">🚀 Start Test</button>
+        <button class="btn btn-outline" onclick="loadSampleCase()">📖 Load 5 Sample Questions</button>
+      </div>
+      <div class="parse-status" id="parse-status-case"></div>
+    </div>
+  </div>
+
+  <div class="prompt-section" id="prompts-section">
+    <h2>📌 AI Prompts for Question Generation (NotebookLM)</h2>
+
+    <div class="how-to-box">
+      <h4>🎯 How to Use These Prompts</h4>
+      <ol>
+        <li><strong>Open NotebookLM</strong> and upload your study material or MCQ booklet chapter as a source.</li>
+        <li><strong>Copy the prompt</strong> below (Single MCQ or Case-based) using the “📋 Copy Prompt” button.</li>
+        <li><strong>Paste it into the NotebookLM chat</strong> and press Enter.</li>
+        <li><strong>NotebookLM will generate questions</strong> in the exact format required.</li>
+        <li><strong>Copy the output table</strong> from NotebookLM.</li>
+        <li><strong>Return here</strong> → switch to the appropriate tab → paste the questions → click “Start Test”.</li>
+      </ol>
+    </div>
+
+    <div class="prompt-card">
+      <div class="prompt-card-header">
+        <div>
+          <span class="prompt-badge badge-purple">📝 Single MCQs · 1 Mark Each</span>
+          <div class="prompt-card-title">Standard MCQ Prompt</div>
+          <div class="prompt-card-sub">For extracting from MCQ booklets or generating from chapter notes</div>
+        </div>
+      </div>
+
+      <div class="prompt-text-box" id="prompt-single">You are a CA Final exam paper setter working under ICAI standards. I am uploading [study material / an MCQ booklet chapter]. Your task is:
+► If it is an MCQ booklet → EXTRACT all MCQs exactly as-is, correcting any formatting errors, and output them in the required format below.
+► If it is study material → GENERATE original MCQs from the content.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DIFFICULTY &amp; QUALITY STANDARDS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- CA Final level only — test conceptual application, judgment, and computation; never rote recall
+- Distractors must be plausible and drawn from common misconceptions or similar-sounding provisions
+- Language: ICAI Final exam style — formal, precise, unambiguous
+- Each question must be self-contained and independently answerable
+- No duplicate or near-duplicate questions
+- Skip any question that is incomplete, ambiguous, or sub-Final level
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ANSWER POSITION SHUFFLING (MANDATORY)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Before writing a single question, privately assign a random answer position sequence for the full set (A/B/C/D), such that:
+- Each letter appears approximately 25% of the time across the full set
+- There is no pattern: no cycling (A,B,C,D,A,B...), no pairing, no front-loading
+- The correct option MUST land at the pre-assigned position — BUILD the question around the position, not the other way around
+- Never let the naturally correct position override the shuffled assignment
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OUTPUT FORMAT — STRICT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Output ONLY a plain pipe-separated table. Nothing else — no headings, no explanations, no blank rows, no serial number.
+
+EXACT COLUMN ORDER (6 columns, pipe-separated):
+Question | Option A | Option B | Option C | Option D | Correct Answer
+
+RULES:
+- One row = one question
+- Use plain text only — no bold, no asterisks, no markdown
+- Correct Answer column: only the letter A, B, C, or D
+- All four options must be substantive and plausible
+- No trailing pipes, no merged cells
+
+EXAMPLE OUTPUT:
+Under Ind AS 12, deferred tax is recognised using which method? | Income statement approach | Balance sheet approach | Combined approach | Cash basis approach | B
+Which SA deals with the auditor’s responsibility regarding fraud? | SA 240 | SA 250 | SA 265 | SA 315 | A
+A change in useful life of an asset under Ind AS 16 is treated as? | Change in accounting policy | Prior period error | Change in accounting estimate | Retrospective restatement | C
+
+Apply the above prompt to the uploaded source and give me 50 MCQs.</div>
+
+      <div class="prompt-actions">
+        <button class="btn btn-gold copy-btn" onclick="copyPromptToClipboard('single', this)">📋 Copy Prompt</button>
+        <span class="copy-feedback" id="feedback-single">✓ Copied to clipboard!</span>
+      </div>
+    </div>
+
+    <div class="prompt-card">
+      <div class="prompt-card-header">
+        <div>
+          <span class="prompt-badge badge-teal">📚 Case-based MCQs · 2 Marks Each</span>
+          <div class="prompt-card-title">Case-Based MCQ Prompt</div>
+          <div class="prompt-card-sub">For generating scenario-based questions from study material</div>
+        </div>
+      </div>
+
+      <div class="prompt-text-box" id="prompt-case">You are a CA Final exam paper setter specialising in case-based MCQs under ICAI standards. I am uploading study material. GENERATE high-quality case-based MCQs.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CASE SCENARIO QUALITY STANDARDS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Each case must read like a real professional scenario — a company, entity, or fact pattern with specific named figures, dates, amounts, and context
+- Scenarios must be rich enough that multiple concepts or computations can be tested from a single case
+- Avoid generic, textbook-sounding scenarios (Company A did XYZ) — use realistic industry-specific details
+- CA Final level only — questions must require application, analysis, or judgment, not recall
+- Language: ICAI Final exam style — formal, precise, no ambiguity
+- Each individual MCQ must be answerable using the case scenario alone
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PERMITTED CASE STRUCTURES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STRUCTURE 1 — One case, 2–5 MCQs: Write one detailed scenario (5–8 lines), then derive 2–5 questions each testing a different concept, sub-section, or computation from that same case.
+STRUCTURE 2 — One case, 1 MCQ: Write a concise scenario (3–4 lines) with a single focused question testing one key concept.
+Use a healthy mix of both structures across your output.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ANSWER POSITION SHUFFLING (MANDATORY)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Before writing anything, privately assign a random answer-position sequence (A/B/C/D) for all MCQs across all cases, such that:
+- Each letter appears approximately 25% of the time
+- No pattern: no cycling, alternating, pairing, or front-loading
+- Build each question so the correct option lands at the pre-assigned position — position drives construction, not content
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OUTPUT FORMAT — STRICT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Output ONLY a plain pipe-separated table. Nothing else — no headings, no explanations, no blank rows.
+
+EXACT COLUMN ORDER (8 columns, pipe-separated):
+Case ID | Case Scenario | Question | Option A | Option B | Option C | Option D | Correct Answer
+
+RULES:
+- Repeat the FULL case scenario in EVERY row belonging to that case
+- Do not leave the case scenario blank for subsequent rows of the same case
+- Case ID: repeat same ID (e.g. CASE-01) for every row belonging to that case
+- One row = one MCQ
+- No blank rows and no merged cells
+- Plain text only — no bold, asterisks, or markdown
+- Correct Answer: only the letter A, B, C, or D
+
+EXAMPLE OUTPUT:
+CASE-01 | Prestige Textiles Ltd., a listed manufacturing company, changed its inventory valuation method from FIFO to Weighted Average Cost with effect from 1 April 2024 without obtaining Board approval. The CFO has proposed that the change be applied prospectively to avoid restating comparative figures. The auditors have flagged this in their review notes. The company’s profit before tax for FY2024 would have been Rs.12 crore lower under the old method. | Which Ind AS governs a change in accounting policy? | Ind AS 2 | Ind AS 8 | Ind AS 10 | Ind AS 16 | B
+CASE-01 | Prestige Textiles Ltd., a listed manufacturing company, changed its inventory valuation method from FIFO to Weighted Average Cost with effect from 1 April 2024 without obtaining Board approval. The CFO has proposed that the change be applied prospectively to avoid restating comparative figures. The auditors have flagged this in their review notes. The company’s profit before tax for FY2024 would have been Rs.12 crore lower under the old method. | What is the correct treatment for this change in accounting policy? | Apply prospectively as proposed | Apply retrospectively with restatement of comparatives | Disclose in notes only, no restatement required | Treat as a prior period error and adjust opening reserves | B
+CASE-02 | Metro Infrastructure Pvt. Ltd. entered into a lease for office space on 1 April 2024 for a period of 6 years at a monthly rent of Rs.4,00,000. The company’s incremental borrowing rate is 9% p.a. The lease contains no purchase option but grants the lessee the right to use the asset for the full term. | Under Ind AS 116, how should Metro Infrastructure classify this lease? | Operating lease, expense monthly | Finance lease on balance sheet | Short-term lease exemption applies | Low-value asset exemption applies | B
+
+Apply the above prompt to the uploaded source and give me 50 case-based MCQs.</div>
+
+      <div class="prompt-actions">
+        <button class="btn btn-gold copy-btn" onclick="copyPromptToClipboard('case', this)">📋 Copy Prompt</button>
+        <span class="copy-feedback" id="feedback-case">✓ Copied to clipboard!</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="screen-test" class="screen">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-logo">CA</div>
+      <div>
+        <div class="topbar-title" id="test-title-bar">Test</div>
+        <div class="topbar-sub"><span id="student-name-bar">Student</span> · Created by Selva Velu Mayil · <a href="https://www.linkedin.com/in/selva-velu-mayil-r-4922aa2a5" target="_blank" rel="noopener noreferrer">LinkedIn</a></div>
+      </div>
+    </div>
+    <button class="btn btn-outline" onclick="confirmSubmit()" style="padding:9px 18px;font-size:13px;">Submit</button>
+  </div>
+
+  <div class="test-layout">
+    <div class="test-main">
+      <div class="timer-bar">
+        <div>
+          <div style="font-size:11px;color:var(--text3);">Time Remaining</div>
+          <div class="timer-display" id="timer-display">45:00</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:13px;color:var(--text2);" id="timer-qinfo">Q 1 of 0</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px;" id="timer-attempted">0 answered</div>
+        </div>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-bar"></div></div>
+      <div class="question-card" id="question-area"></div>
+      <div class="q-nav-btns">
+        <button class="btn btn-outline" id="btn-prev" onclick="prevQ()">← Previous</button>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-outline" id="btn-skip" onclick="skipQ()">Skip →</button>
+          <button class="btn btn-emerald" id="btn-next" onclick="nextQ()">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="test-sidebar">
+      <div class="sidebar-title">Questions</div>
+      <div class="q-grid" id="q-grid"></div>
+      <div class="sidebar-stats" style="margin-top:20px;">
+        <div class="sidebar-stat"><span>Answered</span><span id="sb-answered" style="color:var(--emerald2);">0</span></div>
+        <div class="sidebar-stat"><span>Skipped</span><span style="color:#fbbf24;" id="sb-skipped">0</span></div>
+        <div class="sidebar-stat"><span>Remaining</span><span id="sb-remaining">0</span></div>
+      </div>
+      <button class="btn btn-rose" style="width:100%;margin-top:20px;justify-content:center;" onclick="confirmSubmit()">Submit</button>
+    </div>
+  </div>
+</div>
+
+<div id="screen-results" class="screen">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-logo">CA</div>
+      <div>
+        <div class="topbar-title">Results</div>
+        <div class="topbar-sub"><span id="results-subtitle">Test</span> · Created by Selva Velu Mayil · <a href="https://www.linkedin.com/in/selva-velu-mayil-r-4922aa2a5" target="_blank" rel="noopener noreferrer">LinkedIn</a></div>
+      </div>
+    </div>
+    <button class="btn btn-outline" onclick="showScreen('screen-review')" style="font-size:13px;padding:9px 18px;">Review</button>
+  </div>
+
+  <div class="results-hero">
+    <h1 id="results-grade-msg">Great Job!</h1>
+    <div class="score-ring-wrap">
+      <div class="score-ring-outer">
+        <canvas id="score-ring-chart" width="160" height="160"></canvas>
+        <div class="score-ring-inner">
+          <div class="score-ring-pct" id="score-pct">0%</div>
+          <div style="font-size:12px;color:var(--text3);">Score</div>
+        </div>
+      </div>
+    </div>
+    <div class="results-meta-cards">
+      <div class="rmeta"><div class="rmeta-val" style="color:var(--emerald2);" id="r-correct">0</div><div class="rmeta-lbl">Correct</div></div>
+      <div class="rmeta"><div class="rmeta-val" style="color:var(--rose2);" id="r-wrong">0</div><div class="rmeta-lbl">Wrong</div></div>
+      <div class="rmeta"><div class="rmeta-val" style="color:#fbbf24;" id="r-skipped">0</div><div class="rmeta-lbl">Skipped</div></div>
+      <div class="rmeta"><div class="rmeta-val" style="color:var(--sky2);" id="r-time">0:00</div><div class="rmeta-lbl">Time</div></div>
+      <div class="rmeta"><div class="rmeta-val" style="color:var(--gold);" id="r-accuracy">0%</div><div class="rmeta-lbl">Accuracy</div></div>
+    </div>
+  </div>
+
+  <div class="reports-grid">
+    <div class="report-card">
+      <h3>Score Breakdown</h3>
+      <p>Distribution of answers</p>
+      <canvas id="chart-breakdown" style="max-height:250px;"></canvas>
+    </div>
+
+    <div class="report-card">
+      <h3>Performance by Question</h3>
+      <p>Question-wise results</p>
+      <canvas id="chart-qwise" style="max-height:250px;"></canvas>
+    </div>
+
+    <div class="report-card">
+      <h3>Time per Question</h3>
+      <p>Seconds spent on each question</p>
+      <div id="time-per-q" style="max-height:250px;overflow-y:auto;"></div>
+    </div>
+
+    <div class="report-card">
+      <h3>Average Time per Question</h3>
+      <p>Overall average and timing summary</p>
+      <div id="avg-time-report"></div>
+    </div>
+  </div>
+
+  <div class="results-actions">
+    <button class="btn btn-gold" onclick="showScreen('screen-review')">📖 Review Answers</button>
+    <button class="btn btn-outline" onclick="retakeTest()">🔄 Retake</button>
+    <button class="btn btn-outline" onclick="showScreen('screen-home')">🏠 Home</button>
+  </div>
+</div>
+
+<div id="screen-review" class="screen">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-logo">CA</div>
+      <div>
+        <div class="topbar-title">Answer Review</div>
+        <div class="topbar-sub">Detailed analysis · Created by Selva Velu Mayil · <a href="https://www.linkedin.com/in/selva-velu-mayil-r-4922aa2a5" target="_blank" rel="noopener noreferrer">LinkedIn</a></div>
+      </div>
+    </div>
+    <button class="btn btn-outline" onclick="showScreen('screen-results')" style="font-size:13px;padding:9px 18px;">← Back</button>
+  </div>
+  <div class="review-wrap">
+    <h2>Your Answers</h2>
+    <div id="review-list"></div>
+  </div>
+</div>
+
+
+
+<div id="calculator-fab" class="calc-fab" title="Open calculator" onclick="toggleCalculator()">🧮</div>
+<div id="calculator-panel" class="calculator-panel" aria-label="Floating calculator">
+  <div class="calc-header" id="calc-drag-handle">
+    <div class="calc-title">Quick Calculator</div>
+    <div class="calc-header-actions">
+      <button class="calc-header-btn" type="button" onclick="clearCalculator()" title="Clear">C</button>
+      <button class="calc-header-btn" type="button" onclick="toggleCalculator(false)" title="Close">✕</button>
+    </div>
+  </div>
+  <div class="calc-body">
+    <div class="calc-subdisplay" id="calc-subdisplay"></div>
+    <input id="calc-display" class="calc-display" type="text" value="0" readonly>
+    <div class="calc-grid">
+      <button class="calc-btn action" type="button" onclick="clearCalculator()">AC</button>
+      <button class="calc-btn action" type="button" onclick="backspaceCalculator()">⌫</button>
+      <button class="calc-btn operator" type="button" onclick="appendCalculator('(')">(</button>
+      <button class="calc-btn operator" type="button" onclick="appendCalculator(')')">)</button>
+
+      <button class="calc-btn" type="button" onclick="appendCalculator('7')">7</button>
+      <button class="calc-btn" type="button" onclick="appendCalculator('8')">8</button>
+      <button class="calc-btn" type="button" onclick="appendCalculator('9')">9</button>
+      <button class="calc-btn operator" type="button" onclick="appendCalculator('/')">÷</button>
+
+      <button class="calc-btn" type="button" onclick="appendCalculator('4')">4</button>
+      <button class="calc-btn" type="button" onclick="appendCalculator('5')">5</button>
+      <button class="calc-btn" type="button" onclick="appendCalculator('6')">6</button>
+      <button class="calc-btn operator" type="button" onclick="appendCalculator('*')">×</button>
+
+      <button class="calc-btn" type="button" onclick="appendCalculator('1')">1</button>
+      <button class="calc-btn" type="button" onclick="appendCalculator('2')">2</button>
+      <button class="calc-btn" type="button" onclick="appendCalculator('3')">3</button>
+      <button class="calc-btn operator" type="button" onclick="appendCalculator('-')">−</button>
+
+      <button class="calc-btn zero" type="button" onclick="appendCalculator('0')">0</button>
+      <button class="calc-btn" type="button" onclick="appendCalculator('.')">.</button>
+      <button class="calc-btn operator" type="button" onclick="appendCalculator('+')">+</button>
+
+      <button class="calc-btn operator" type="button" onclick="appendCalculator('%')">%</button>
+      <button class="calc-btn" type="button" onclick="appendCalculator('00')">00</button>
+      <button class="calc-btn equal" type="button" style="grid-column: span 2;" onclick="evaluateCalculator()">=</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let questions = [];
+let userAnswers = [];
+let questionTimes = [];
+let skipped = [];
+let hintShown = [];
+let currentQ = 0;
+let timerInterval = null;
+let timeLimit = 0;
+let timeElapsed = 0;
+let qStartTime = 0;
+let testStartTime = 0;
+let charts = {};
+let testType = 'single';
+
+const OPTS = ['A', 'B', 'C', 'D'];
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function switchTab(tab, el) {
+  document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(e => e.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (el) el.classList.add('active');
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+  updateCalculatorVisibility();
+}
+
+function scrollToInput() {
+  document.getElementById('input-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+function scrollToPrompts() {
+  document.getElementById('prompts-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+function copyPromptToClipboard(type, btn) {
+  const promptEl = document.getElementById('prompt-' + type);
+  const text = promptEl.innerText;
+
+  navigator.clipboard.writeText(text).then(() => {
+    const feedback = document.getElementById('feedback-' + type);
+    feedback.classList.add('show');
+    btn.textContent = '✅ Copied!';
+
+    setTimeout(() => {
+      feedback.classList.remove('show');
+      btn.textContent = '📋 Copy Prompt';
+    }, 2500);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+
+    const feedback = document.getElementById('feedback-' + type);
+    feedback.classList.add('show');
+    btn.textContent = '✅ Copied!';
+
+    setTimeout(() => {
+      feedback.classList.remove('show');
+      btn.textContent = '📋 Copy Prompt';
+    }, 2500);
+  });
+}
+
+function parseInputSingle(raw) {
+  const lines = raw.trim().split('\n').map(l => l.trim()).filter(Boolean);
+  const qs = [];
+
+  for (const line of lines) {
+    const parts = (line.includes('\t') ? line.split('\t') : line.split('|')).map(p => p.trim());
+
+    if (parts.length === 6) {
+      const [question, optA, optB, optC, optD, ansRaw] = parts;
+      const ans = ansRaw.toUpperCase();
+      if (!question || !optA || !optB || !optC || !optD) continue;
+      if (!OPTS.includes(ans)) continue;
+      qs.push({ question, options: [optA, optB, optC, optD], correct: ans, marks: 1, caseId: null, caseText: null });
+    } else if (parts.length >= 7) {
+      const serialMaybe = parts[0];
+      const question = parts[1];
+      const optA = parts[2];
+      const optB = parts[3];
+      const optC = parts[4];
+      const optD = parts[5];
+      const ans = (parts[6] || '').toUpperCase();
+      if (!question || !optA || !optB || !optC || !optD) continue;
+      if (!OPTS.includes(ans)) continue;
+      qs.push({ question, options: [optA, optB, optC, optD], correct: ans, marks: 1, caseId: null, caseText: null, serial: serialMaybe });
+    }
+  }
+
+  return qs;
+}
+
+function parseInputCase(raw) {
+  const qs = [];
+  const lines = raw.trim().split('\n').map(l => l.trim()).filter(Boolean);
+
+  for (const line of lines) {
+    if (!line.includes('|')) continue;
+    const parts = line.split('|').map(p => p.trim());
+
+    if (parts.length === 8) {
+      const [caseId, caseText, question, optA, optB, optC, optD, ansRaw] = parts;
+      const ans = ansRaw.toUpperCase();
+      if (!caseId || !caseText || !question || !optA || !optB || !optC || !optD) continue;
+      if (!OPTS.includes(ans)) continue;
+      qs.push({ question, options: [optA, optB, optC, optD], correct: ans, marks: 2, caseId, caseText });
+    } else if (parts.length >= 9) {
+      const caseId = parts[0];
+      const caseText = parts[1];
+      const question = parts[3];
+      const optA = parts[4];
+      const optB = parts[5];
+      const optC = parts[6];
+      const optD = parts[7];
+      const ans = (parts[8] || '').toUpperCase();
+      if (!caseId || !caseText || !question || !optA || !optB || !optC || !optD) continue;
+      if (!OPTS.includes(ans)) continue;
+      qs.push({ question, options: [optA, optB, optC, optD], correct: ans, marks: 2, caseId, caseText });
+    }
+  }
+
+  return qs;
+}
+
+function parseAndStartSingle() {
+  const raw = document.getElementById('qa-input-single').value;
+  const qs = parseInputSingle(raw);
+  const status = document.getElementById('parse-status-single');
+
+  if (qs.length === 0) {
+    status.style.display = 'block';
+    status.className = 'parse-status error';
+    status.textContent = '⚠ Error parsing. Check format.';
+    return;
+  }
+
+  status.style.display = 'block';
+  status.className = 'parse-status success';
+  status.textContent = `✓ ${qs.length} questions loaded.`;
+  setTimeout(() => startTest(qs, 'single'), 500);
+}
+
+function parseAndStartCase() {
+  const raw = document.getElementById('qa-input-case').value;
+  const qs = parseInputCase(raw);
+  const status = document.getElementById('parse-status-case');
+
+  if (qs.length === 0) {
+    status.style.display = 'block';
+    status.className = 'parse-status error';
+    status.textContent = '⚠ Error parsing. Check format.';
+    return;
+  }
+
+  status.style.display = 'block';
+  status.className = 'parse-status success';
+  status.textContent = `✓ ${qs.length} questions loaded.`;
+  setTimeout(() => startTest(qs, 'case'), 500);
+}
+
+function loadSampleSingle() {
+  const sample = `What does SA 570 deal with?|Going Concern|Related Parties|Internal Controls|Fraud|A
+Under Ind AS 109, financial assets are classified into how many categories?|Amortised cost and FVTOCI only|Two|Three|Four|C
+Which AS covers change in accounting policy?|AS 2|AS 8|AS 16|AS 20|B
+Under Ind AS 12, deferred tax is recognised using which method?|Income statement approach|Balance sheet approach|Combined approach|Cash basis approach|B
+Which SA deals with the auditor's responsibility regarding fraud?|SA 240|SA 250|SA 265|SA 315|A`;
+  document.getElementById('qa-input-single').value = sample;
+  const status = document.getElementById('parse-status-single');
+  status.style.display = 'none';
+}
+
+function loadSampleCase() {
+  const sample = `CASE-01|ABC Ltd., a manufacturing company, changed its depreciation method from FYP to WDV with effect from 1 April 2024. The CFO proposed applying the change prospectively to avoid restating comparatives, but the auditors flagged the Ind AS 8 implications.|Under which Ind AS is a change in accounting policy covered?|Ind AS 2|Ind AS 8|Ind AS 16|Ind AS 20|B
+CASE-01|ABC Ltd., a manufacturing company, changed its depreciation method from FYP to WDV with effect from 1 April 2024. The CFO proposed applying the change prospectively to avoid restating comparatives, but the auditors flagged the Ind AS 8 implications.|What is the correct accounting treatment for this change?|Apply prospectively only|Apply retrospectively with restatement of comparatives|Disclose in notes only|Treat as prior period error|B
+CASE-02|Metro Infrastructure Pvt. Ltd. entered into a 6-year lease for office space at Rs.4,00,000 per month. The company’s incremental borrowing rate is 9% p.a. There is no purchase option, but the lease grants full right-of-use over the term.|Under Ind AS 116, how should this lease be treated?|Operating lease recognised as monthly expense|Recognise ROU asset and lease liability|Short-term lease exemption applies|Low-value asset exemption applies|B
+CASE-02|Metro Infrastructure Pvt. Ltd. entered into a 6-year lease for office space at Rs.4,00,000 per month. The company’s incremental borrowing rate is 9% p.a. There is no purchase option, but the lease grants full right-of-use over the term.|What is the initial recognition required for this lease?|Record only lease expense in profit and loss|Recognise an asset and a liability on the balance sheet|Create a disclosure note only|No recognition is required at commencement|B
+CASE-03|Prestige Ltd. classified an investment portfolio as FVTOCI under Ind AS 109 and recorded unrealised fair value gains of Rs.50 lakhs at year-end. The finance team is deciding whether the gain should go through profit and loss or OCI.|Where should fair value gains on FVTOCI investments be recognised?|Profit and Loss statement|Other Comprehensive Income|Retained earnings|Reserves and surplus|B`;
+  document.getElementById('qa-input-case').value = sample;
+  const status = document.getElementById('parse-status-case');
+  status.style.display = 'none';
+}
+
+function startTest(qs, type) {
+  questions = qs;
+  testType = type;
+  userAnswers = new Array(qs.length).fill(null);
+  questionTimes = new Array(qs.length).fill(0);
+  skipped = new Array(qs.length).fill(false);
+  hintShown = new Array(qs.length).fill(false);
+  currentQ = 0;
+  timeElapsed = 0;
+  testStartTime = Date.now();
+  qStartTime = Date.now();
+
+  const config = type === 'single' ? {
+    testNameId: 'test-name-single',
+    studentNameId: 'student-name-single',
+    timeLimitId: 'time-limit-single'
+  } : {
+    testNameId: 'test-name-case',
+    studentNameId: 'student-name-case',
+    timeLimitId: 'time-limit-case'
+  };
+
+  timeLimit = parseInt(document.getElementById(config.timeLimitId).value, 10) * 60;
+  document.getElementById('test-title-bar').textContent = document.getElementById(config.testNameId).value || 'Test';
+  document.getElementById('student-name-bar').textContent = document.getElementById(config.studentNameId).value || 'Student';
+
+  buildQGrid();
+  renderQuestion();
+  startTimer();
+  showScreen('screen-test');
+}
+
+function buildQGrid() {
+  const grid = document.getElementById('q-grid');
+  grid.innerHTML = '';
+  questions.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'q-dot' + (i === 0 ? ' current' : '');
+    d.textContent = i + 1;
+    d.onclick = () => goToQ(i);
+    grid.appendChild(d);
+  });
+  updateSidebarStats();
+}
+
+function updateQGrid() {
+  const dots = document.querySelectorAll('.q-dot');
+  dots.forEach((d, i) => {
+    d.className = 'q-dot';
+    if (i === currentQ) d.classList.add('current');
+    else if (userAnswers[i] !== null) d.classList.add('answered');
+    else if (skipped[i]) d.classList.add('skipped');
+  });
+  updateSidebarStats();
+}
+
+function updateSidebarStats() {
+  const answered = userAnswers.filter(a => a !== null).length;
+  const sk = skipped.filter(Boolean).length;
+  document.getElementById('sb-answered').textContent = answered;
+  document.getElementById('sb-skipped').textContent = sk;
+  document.getElementById('sb-remaining').textContent = questions.length - answered - sk;
+  document.getElementById('timer-attempted').textContent = answered + ' answered';
+  const pct = questions.length > 0 ? Math.round((answered / questions.length) * 100) : 0;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('timer-qinfo').textContent = `Q ${currentQ + 1} of ${questions.length}`;
+}
+
+function renderQuestion() {
+  const q = questions[currentQ];
+  let html = `<div class="q-number">Question ${currentQ + 1} of ${questions.length}</div>`;
+
+  if (q.caseText && q.caseText.trim()) {
+    html += `<div class="case-scenario">
+      <div class="case-scenario-label">📚 Case: ${escapeHtml(q.caseId)}</div>
+      <div class="case-scenario-text">${escapeHtml(q.caseText)}</div>
+    </div>`;
+  }
+
+  html += `<div class="q-text">${escapeHtml(q.question)}</div><div class="options-grid">`;
+
+  q.options.forEach((opt, i) => {
+    html += `<button class="option-btn ${userAnswers[currentQ] === OPTS[i] ? 'selected' : ''} ${hintShown[currentQ] && OPTS[i] === q.correct ? 'hint-correct' : ''}" onclick="selectAnswer('${OPTS[i]}', this)">
+      <div class="opt-label">${OPTS[i]}</div>
+      <div class="opt-text">${escapeHtml(opt)}</div>
+    </button>`;
+  });
+
+  html += `</div>`;
+  html += `<div class="hint-wrap">` + (hintShown[currentQ]
+    ? `<div class="hint-result">💡 Correct answer: ${q.correct}</div>`
+    : `<button class="hint-btn" onclick="showHint()">💡 Hint – Show Answer</button>`) + `</div>`;
+  const qArea = document.getElementById('question-area');
+  if (qArea) qArea.innerHTML = html;
+
+  const btnPrev = document.getElementById('btn-prev');
+  if (btnPrev) {
+    btnPrev.style.opacity = currentQ === 0 ? '0.3' : '1';
+    btnPrev.style.pointerEvents = currentQ === 0 ? 'none' : 'all';
+  }
+
+  const btnNext = document.getElementById('btn-next');
+  if (btnNext) {
+    btnNext.textContent = currentQ === questions.length - 1 ? 'Submit →' : 'Next →';
+  }
+
+  updateQGrid();
+}
+
+function selectAnswer(opt, btn) {
+  userAnswers[currentQ] = opt;
+  skipped[currentQ] = false;
+  document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  updateQGrid();
+}
+
+function showHint() {
+  hintShown[currentQ] = true;
+  renderQuestion();
+}
+
+function recordTime() {
+  const elapsed = Math.round((Date.now() - qStartTime) / 1000);
+  questionTimes[currentQ] += elapsed;
+  qStartTime = Date.now();
+}
+
+function goToQ(i) {
+  recordTime();
+  currentQ = i;
+  renderQuestion();
+}
+
+function nextQ() {
+  if (currentQ === questions.length - 1) {
+    confirmSubmit();
+    return;
+  }
+  recordTime();
+  currentQ++;
+  renderQuestion();
+}
+
+function prevQ() {
+  if (currentQ === 0) return;
+  recordTime();
+  currentQ--;
+  renderQuestion();
+}
+
+function skipQ() {
+  skipped[currentQ] = true;
+  recordTime();
+  if (currentQ < questions.length - 1) {
+    currentQ++;
+    renderQuestion();
+  }
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  const display = document.getElementById('timer-display');
+  display.classList.remove('warning');
+  if (timeLimit === 0) {
+    display.textContent = '∞';
+    return;
+  }
+
+  let remaining = timeLimit;
+  display.textContent = formatTime(remaining);
+
+  timerInterval = setInterval(() => {
+    remaining--;
+    timeElapsed++;
+    display.textContent = formatTime(remaining);
+    if (remaining <= 300) display.classList.add('warning');
+    if (remaining <= 0) {
+      clearInterval(timerInterval);
+      submitTest();
+    }
+  }, 1000);
+}
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+}
+
+function confirmSubmit() {
+  const answered = userAnswers.filter(a => a !== null).length;
+  const unanswered = questions.length - answered;
+  if (unanswered > 0) {
+    if (!confirm(`${unanswered} question(s) unanswered. Submit anyway?`)) return;
+  }
+  submitTest();
+}
+
+function submitTest() {
+  clearInterval(timerInterval);
+  recordTime();
+  timeElapsed = Math.round((Date.now() - testStartTime) / 1000);
+  showScreen('screen-results');
+  setTimeout(() => {
+    buildResults();
+    buildReview();
+  }, 100);
+}
+
+function getStats() {
+  let correct = 0, wrong = 0, sk = 0;
+  questions.forEach((q, i) => {
+    if (userAnswers[i] === null) sk++;
+    else if (userAnswers[i] === q.correct) correct++;
+    else wrong++;
+  });
+  const total = questions.length;
+  const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+  const accuracy = (correct + wrong) > 0 ? Math.round((correct / (correct + wrong)) * 100) : 0;
+  return { correct, wrong, skipped: sk, total, pct, accuracy };
+}
+
+function buildResults() {
+  const s = getStats();
+  document.getElementById('results-subtitle').textContent = document.getElementById('test-title-bar').textContent;
+
+  const msgs = ['Keep Practicing', 'Needs Improvement', 'Good', 'Very Good', 'Excellent', 'Outstanding'];
+  const gi = s.pct < 30 ? 0 : s.pct < 45 ? 1 : s.pct < 60 ? 2 : s.pct < 75 ? 3 : s.pct < 90 ? 4 : 5;
+  document.getElementById('results-grade-msg').textContent = msgs[gi];
+  document.getElementById('score-pct').textContent = s.pct + '%';
+  document.getElementById('r-correct').textContent = s.correct;
+  document.getElementById('r-wrong').textContent = s.wrong;
+  document.getElementById('r-skipped').textContent = s.skipped;
+  document.getElementById('r-time').textContent = formatTime(timeElapsed);
+  document.getElementById('r-accuracy').textContent = s.accuracy + '%';
+
+  Object.values(charts).forEach(c => { if (c && c.destroy) c.destroy(); });
+  charts = {};
+
+  const ringCanvas = document.getElementById('score-ring-chart');
+  if (ringCanvas && typeof Chart !== 'undefined') {
+    const ringCtx = ringCanvas.getContext('2d');
+    charts.ring = new Chart(ringCtx, {
+      type: 'doughnut',
+      data: {
+        datasets: [{
+          data: [s.pct, 100 - s.pct],
+          backgroundColor: ['#c9a84c', 'rgba(255,255,255,0.05)'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        cutout: '80%',
+        plugins: { legend: { display: false }, tooltip: { enabled: false } }
+      }
+    });
+  }
+
+  const bdCanvas = document.getElementById('chart-breakdown');
+  if (bdCanvas && typeof Chart !== 'undefined') {
+    const bdCtx = bdCanvas.getContext('2d');
+    charts.breakdown = new Chart(bdCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Correct', 'Wrong', 'Skipped'],
+        datasets: [{
+          data: [s.correct, s.wrong, s.skipped],
+          backgroundColor: ['#1a9e6e', '#e05c6f', '#f59e0b'],
+          borderColor: '#111f38',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        plugins: { legend: { labels: { color: '#9bacc8', font: { size: 12 } } } }
+      }
+    });
+  }
+
+  const qwCanvas = document.getElementById('chart-qwise');
+  if (qwCanvas && typeof Chart !== 'undefined') {
+    const qwCtx = qwCanvas.getContext('2d');
+    const qLabels = questions.map((_, i) => 'Q' + (i + 1));
+    const qData = questions.map((q, i) => userAnswers[i] === q.correct ? 1 : userAnswers[i] === null ? 0 : -1);
+    const qColors = qData.map(v => v === 1 ? '#1a9e6e' : v === -1 ? '#e05c6f' : '#f59e0b');
+
+    charts.qwise = new Chart(qwCtx, {
+      type: 'bar',
+      data: {
+        labels: qLabels,
+        datasets: [{
+          data: qData.map(v => Math.abs(v) || 0.3),
+          backgroundColor: qColors,
+          borderRadius: 4
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#6b82a0' }, grid: { display: false } },
+          y: { display: false, max: 1.2 }
+        }
+      }
+    });
+  }
+
+  const timePerQ = document.getElementById('time-per-q');
+  if (timePerQ) {
+    timePerQ.innerHTML = '';
+    const maxTime = Math.max(...questionTimes, 1);
+    questions.forEach((_, i) => {
+      const barWidth = (questionTimes[i] / maxTime * 100);
+      const color = userAnswers[i] === questions[i].correct ? '#1a9e6e' : userAnswers[i] ? '#e05c6f' : '#f59e0b';
+      const html = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <div style="font-size:11px;color:var(--text3);width:20px;">Q${i + 1}</div>
+        <div style="flex:1;height:8px;background:var(--surface3);border-radius:99px;overflow:hidden;">
+          <div style="width:${barWidth}%;height:100%;background:${color};"></div>
+        </div>
+        <div style="font-size:11px;color:var(--text2);width:30px;text-align:right;">${questionTimes[i]}s</div>
+      </div>`;
+      timePerQ.innerHTML += html;
+    });
+  }
+
+  const avgTimeReport = document.getElementById('avg-time-report');
+  if (avgTimeReport) {
+    const totalQuestions = questions.length || 1;
+    const avgSeconds = Math.round(questionTimes.reduce((a, b) => a + b, 0) / totalQuestions);
+    const answeredCount = userAnswers.filter(a => a !== null).length;
+    const answeredAvgSeconds = answeredCount > 0
+      ? Math.round(questionTimes.filter((_, i) => userAnswers[i] !== null).reduce((a, b) => a + b, 0) / answeredCount)
+      : 0;
+    const maxSeconds = Math.max(...questionTimes, 0);
+    const slowestIndex = questionTimes.findIndex(t => t === maxSeconds);
+
+    avgTimeReport.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div style="padding:16px;border-radius:14px;background:var(--surface2);border:1px solid var(--border);text-align:center;">
+          <div style="font-size:12px;color:var(--text3);margin-bottom:6px;">Overall Average</div>
+          <div style="font-family:'Playfair Display', serif;font-size:34px;color:var(--gold);font-weight:700;">${avgSeconds}s</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:6px;">Average time taken per question</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div style="padding:12px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);">
+            <div style="font-size:11px;color:var(--text3);margin-bottom:5px;">Answered Questions Avg</div>
+            <div style="font-size:22px;color:var(--emerald2);font-weight:700;">${answeredAvgSeconds}s</div>
+          </div>
+          <div style="padding:12px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);">
+            <div style="font-size:11px;color:var(--text3);margin-bottom:5px;">Slowest Question</div>
+            <div style="font-size:22px;color:var(--rose2);font-weight:700;">${slowestIndex >= 0 ? `Q${slowestIndex + 1}` : '-'}</div>
+            <div style="font-size:11px;color:var(--text2);margin-top:4px;">${maxSeconds}s</div>
+          </div>
+        </div>
+      </div>`;
+  }
+}
+
+function buildReview() {
+  const list = document.getElementById('review-list');
+  if (!list) return;
+
+  list.innerHTML = '';
+  questions.forEach((q, i) => {
+    const userAns = userAnswers[i];
+    const isCorrect = userAns === q.correct;
+
+    let html = `<div class="review-q">
+      <div class="review-q-num">Q ${i + 1} - ${isCorrect ? '✓ Correct' : userAns === null ? '⊘ Skipped' : '✗ Wrong'}</div>`;
+
+    if (q.caseText) {
+      html += `<div class="case-scenario" style="margin-bottom:16px;">
+        <div class="case-scenario-label">📚 Case: ${escapeHtml(q.caseId)}</div>
+        <div class="case-scenario-text">${escapeHtml(q.caseText)}</div>
+      </div>`;
+    }
+
+    html += `<div class="review-q-text">${escapeHtml(q.question)}</div>
+      <div class="review-options">`;
+
+    q.options.forEach((opt, j) => {
+      const lbl = OPTS[j];
+      let cls = 'neutral';
+      if (lbl === q.correct) cls = 'correct';
+      else if (lbl === userAns && !isCorrect) cls = 'wrong';
+      html += `<div class="review-opt ${cls}"><strong>${lbl}.</strong> ${escapeHtml(opt)}</div>`;
+    });
+
+    html += `</div><div style="font-size:11px;color:var(--text3);margin-top:8px;">Time: ${questionTimes[i]}s</div></div>`;
+    list.innerHTML += html;
+  });
+}
+
+
+
+let calcExpression = '';
+let calcDrag = { active: false, startX: 0, startY: 0, left: 0, top: 0 };
+
+function getCalculatorElements() {
+  return {
+    fab: document.getElementById('calculator-fab'),
+    panel: document.getElementById('calculator-panel'),
+    display: document.getElementById('calc-display'),
+    subdisplay: document.getElementById('calc-subdisplay'),
+    dragHandle: document.getElementById('calc-drag-handle')
+  };
+}
+
+function formatCalcExpression(expr) {
+  return (expr || '')
+    .replace(/\*/g, '×')
+    .replace(/\//g, '÷');
+}
+
+function refreshCalculatorDisplay(resultText) {
+  const { display, subdisplay } = getCalculatorElements();
+  if (!display || !subdisplay) return;
+  display.value = resultText ?? (calcExpression || '0');
+  subdisplay.textContent = formatCalcExpression(calcExpression);
+}
+
+function normalizePercent(expr) {
+  return expr.replace(/(\d+(?:\.\d+)?)%/g, '($1/100)');
+}
+
+function appendCalculator(value) {
+  if (calcExpression === 'Error') calcExpression = '';
+  if (value === '.' ) {
+    const tail = calcExpression.split(/[+\-*/()%]/).pop();
+    if (tail.includes('.')) return;
+  }
+  calcExpression += value;
+  refreshCalculatorDisplay(calcExpression || '0');
+}
+
+function clearCalculator() {
+  calcExpression = '';
+  refreshCalculatorDisplay('0');
+}
+
+function backspaceCalculator() {
+  if (calcExpression === 'Error') {
+    clearCalculator();
+    return;
+  }
+  calcExpression = calcExpression.slice(0, -1);
+  refreshCalculatorDisplay(calcExpression || '0');
+}
+
+function evaluateCalculator() {
+  try {
+    if (!calcExpression.trim()) return;
+    const normalized = normalizePercent(calcExpression);
+    if (!/^[0-9+\-*/().%\s]+$/.test(calcExpression)) throw new Error('Invalid input');
+    const result = Function('return (' + normalized + ')')();
+    if (!Number.isFinite(result)) throw new Error('Invalid result');
+    const pretty = parseFloat(Number(result).toFixed(10)).toString();
+    refreshCalculatorDisplay(pretty);
+    calcExpression = pretty;
+  } catch (e) {
+    calcExpression = 'Error';
+    refreshCalculatorDisplay('Error');
+  }
+}
+
+function toggleCalculator(forceOpen) {
+  const { panel } = getCalculatorElements();
+  if (!panel) return;
+  const shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : !panel.classList.contains('show');
+  panel.classList.toggle('show', shouldOpen);
+}
+
+function updateCalculatorVisibility() {
+  const { fab, panel } = getCalculatorElements();
+  if (!fab || !panel) return;
+  const isTestVisible = document.getElementById('screen-test')?.classList.contains('active');
+  fab.classList.toggle('show', !!isTestVisible);
+  if (!isTestVisible) panel.classList.remove('show');
+}
+
+function initCalculatorDrag() {
+  const { panel, dragHandle } = getCalculatorElements();
+  if (!panel || !dragHandle) return;
+  dragHandle.addEventListener('mousedown', (e) => {
+    calcDrag.active = true;
+    const rect = panel.getBoundingClientRect();
+    panel.style.left = rect.left + 'px';
+    panel.style.top = rect.top + 'px';
+    panel.style.right = 'auto';
+    panel.style.bottom = 'auto';
+    calcDrag.startX = e.clientX;
+    calcDrag.startY = e.clientY;
+    calcDrag.left = rect.left;
+    calcDrag.top = rect.top;
+    document.body.style.userSelect = 'none';
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!calcDrag.active) return;
+    const { panel } = getCalculatorElements();
+    const nextLeft = calcDrag.left + (e.clientX - calcDrag.startX);
+    const nextTop = calcDrag.top + (e.clientY - calcDrag.startY);
+    panel.style.left = Math.max(8, nextLeft) + 'px';
+    panel.style.top = Math.max(8, nextTop) + 'px';
+  });
+
+  document.addEventListener('mouseup', () => {
+    calcDrag.active = false;
+    document.body.style.userSelect = '';
+  });
+}
+
+function initCalculatorKeyboard() {
+  document.addEventListener('keydown', (e) => {
+    const { panel } = getCalculatorElements();
+    const isOpen = panel && panel.classList.contains('show');
+    const isTestVisible = document.getElementById('screen-test')?.classList.contains('active');
+    if (!isTestVisible) return;
+
+    if (e.key.toLowerCase() === 'c' && e.altKey) {
+      e.preventDefault();
+      toggleCalculator();
+      return;
+    }
+
+    if (!isOpen) return;
+    if (/^[0-9]$/.test(e.key)) { e.preventDefault(); appendCalculator(e.key); return; }
+    if (['+', '-', '*', '/', '(', ')', '.'].includes(e.key)) { e.preventDefault(); appendCalculator(e.key); return; }
+    if (e.key === '%') { e.preventDefault(); appendCalculator('%'); return; }
+    if (e.key === 'Enter' || e.key === '=') { e.preventDefault(); evaluateCalculator(); return; }
+    if (e.key === 'Backspace') { e.preventDefault(); backspaceCalculator(); return; }
+    if (e.key === 'Escape') { e.preventDefault(); toggleCalculator(false); }
+  });
+}
+
+function initCalculator() {
+  refreshCalculatorDisplay('0');
+  initCalculatorDrag();
+  initCalculatorKeyboard();
+  updateCalculatorVisibility();
+}
+
+function retakeTest() {
+  showScreen('screen-home');
+}
+
+function printReport() {
+  window.print();
+}
+
+initCalculator();
+</script>
+</body>
+</html>
